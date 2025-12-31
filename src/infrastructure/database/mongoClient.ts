@@ -64,14 +64,14 @@ export class MongoClientSingleton {
         console.error('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
         console.error('The MongoDB driver version is incompatible with your Cosmos DB server.');
         console.error('');
-        console.error('Current MongoDB driver: 6.x (supports wire version 6+, MongoDB 3.6+)');
+        console.error('Current MongoDB driver: 6.21.0 (supports wire version 7+, MongoDB 4.0+)');
         console.error('');
         console.error('💡 SOLUTION:');
         console.error('1. Ensure your Cosmos DB account uses MongoDB API version 4.0 or higher');
-        console.error('2. Check Cosmos DB MongoDB server version in Azure Portal:');
+        console.error('2. Check/upgrade Cosmos DB MongoDB server version in Azure Portal:');
         console.error('   Azure Portal → Cosmos DB Account → Features → MongoDB server version');
-        console.error('3. If using MongoDB 3.6, downgrade driver: npm install mongodb@5.9.2');
-        console.error('4. If using MongoDB 4.2+, upgrade driver: npm install mongodb@7.0.0');
+        console.error('3. If your Cosmos DB is using MongoDB 3.6 (wire version 6), you need to');
+        console.error('   upgrade your Cosmos DB to MongoDB 4.0+ for compatibility with this app.');
         console.error('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
         console.error('');
       }
