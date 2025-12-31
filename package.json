@@ -4,7 +4,7 @@
   "description": "Node.js CRUD application with TypeScript for Azure Web App",
   "main": "dist/index.js",
   "engines": {
-    "node": ">=24.0.0"
+    "node": ">=20.0.0"
   },
   "scripts": {
     "dev": "nodemon --watch src --ext ts --exec ts-node src/index.ts",
