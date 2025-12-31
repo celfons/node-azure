@@ -38,7 +38,7 @@ src/
 - **Node.js 24 LTS**: Latest long-term support version
 - **TypeScript 5.x**: Type-safe JavaScript
 - **Express.js**: Web framework
-- **MongoDB**: Optional NoSQL database for persistent storage (uses official MongoDB Node.js driver, compatible with Azure Cosmos DB MongoDB API)
+- **MongoDB Driver 6.21.0**: Official MongoDB Node.js driver, compatible with Azure Cosmos DB MongoDB API version 4.0+ (wire protocol version 7+)
 - **SOLID Principles**: 
   - Single Responsibility Principle
   - Open/Closed Principle
@@ -69,11 +69,19 @@ By default, the application uses in-memory storage. No additional configuration 
 ### Azure Cosmos DB with MongoDB API (Optional)
 To use Azure Cosmos DB for persistent storage, configure the `AZURE_COSMOS_CONNECTIONSTRING` environment variable in Azure Web App Configuration.
 
+#### Compatibility Requirements
+
+This application uses MongoDB Node.js driver **version 6.21.0**, which is compatible with:
+- **Azure Cosmos DB for MongoDB API version 4.0** (wire protocol version 7)
+- MongoDB server versions 3.6 and higher
+
+**Important**: If you encounter wire version errors, ensure your Cosmos DB account uses MongoDB API version 4.0 or higher. Check this in Azure Portal → Cosmos DB Account → Features → MongoDB server version.
+
 #### Azure Configuration
 
 To enable persistent storage in Azure:
 
-1. **Create Azure Cosmos DB account** with MongoDB API
+1. **Create Azure Cosmos DB account** with MongoDB API (version 4.0 or higher recommended)
 2. **Get connection string**:
    - Navigate to Azure Portal → Your Cosmos DB Account → Connection Strings
    - Copy the primary or secondary connection string
