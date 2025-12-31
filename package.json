@@ -11,13 +11,19 @@
     "build": "tsc",
     "start": "node dist/index.js"
   },
-  "keywords": ["node", "typescript", "azure", "crud", "api"],
+  "keywords": [
+    "node",
+    "typescript",
+    "azure",
+    "crud",
+    "api"
+  ],
   "author": "",
   "license": "ISC",
   "dependencies": {
     "cors": "^2.8.5",
     "express": "^5.2.1",
-    "mongodb": "^7.0.0"
+    "mongodb": "^6.21.0"
   },
   "devDependencies": {
     "@types/cors": "^2.8.19",

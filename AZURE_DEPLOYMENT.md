@@ -113,7 +113,20 @@ Configure in Azure Portal → Configuration:
 
 To enable persistent task storage with Azure Cosmos DB (MongoDB API):
 
-1. Create an Azure Cosmos DB account with MongoDB API
+#### Compatibility Requirements
+
+This application uses **MongoDB Node.js driver version 6.21.0**, which is compatible with:
+- **Azure Cosmos DB for MongoDB API version 4.0** (wire protocol version 7)
+- MongoDB server versions 3.6 and higher
+
+**Critical**: Ensure your Cosmos DB account uses MongoDB API **version 4.0 or higher**. To check or upgrade:
+1. Navigate to Azure Portal → Your Cosmos DB Account → Features
+2. Find "MongoDB server version"
+3. Upgrade to version 4.0 or higher if needed
+
+#### Configuration Steps
+
+1. Create an Azure Cosmos DB account with MongoDB API (version 4.0 or higher)
 2. Navigate to Azure Portal → Your Cosmos DB Account → Connection Strings
 3. Copy the primary or secondary connection string
 4. In Azure Portal → Your Web App → Configuration → Application Settings
@@ -141,6 +154,10 @@ Or in Azure Portal:
 1. **App not starting**: Check logs and ensure `npm start` command is correct
 2. **Build failing**: Verify all dependencies are in `package.json`
 3. **Port issues**: Ensure app uses `process.env.PORT || 8080`
+4. **Wire version mismatch**: If you see errors like "Server reports maximum wire version X, but this version requires at least Y":
+   - Check your Cosmos DB MongoDB server version in Azure Portal (Cosmos DB Account → Features)
+   - Ensure you are using MongoDB API version 4.0 or higher
+   - The error message will provide specific instructions for your situation
 
 ## Monitoring
 
