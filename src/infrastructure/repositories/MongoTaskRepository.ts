@@ -7,9 +7,9 @@ import {
 } from '../database/mongoClient';
 
 /**
- * MongoDB Task Repository Implementation
+ * Azure Cosmos DB Task Repository Implementation (MongoDB API)
  * Implements ITaskRepository interface following Dependency Inversion Principle
- * Persists tasks in MongoDB using the official Node.js driver
+ * Persists tasks in Azure Cosmos DB using the MongoDB-compatible API
  */
 export class MongoTaskRepository implements ITaskRepository {
   private mongoClient: MongoClientSingleton;
@@ -19,7 +19,7 @@ export class MongoTaskRepository implements ITaskRepository {
   }
 
   /**
-   * Ensure MongoDB connection before operations
+   * Ensure Azure Cosmos DB connection before operations
    */
   private async ensureConnection(): Promise<void> {
     if (!this.mongoClient.isConnected()) {

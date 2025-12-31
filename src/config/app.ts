@@ -42,7 +42,7 @@ export class App {
 
   private initializeRoutes(): void {
     // Dependency Injection - Manual DI Container
-    // Use MongoDB repository if MONGODB_URI is configured, otherwise use in-memory
+    // Use Azure Cosmos DB repository if AZURE_COSMOS_CONNECTIONSTRING is configured, otherwise use in-memory
     const taskRepository: ITaskRepository = this.createTaskRepository();
     const taskService = new TaskService(taskRepository);
     const taskController = new TaskController(taskService);
@@ -60,13 +60,13 @@ export class App {
 
   /**
    * Create task repository based on environment configuration
-   * Uses MongoDB if MONGODB_URI is set, otherwise falls back to in-memory storage
+   * Uses MongoDB/Cosmos if AZURE_COSMOS_CONNECTIONSTRING is set, otherwise falls back to in-memory storage
    */
   private createTaskRepository(): ITaskRepository {
-    const mongoUri = process.env.MONGODB_URI;
+    const cosmosConnectionString = process.env.AZURE_COSMOS_CONNECTIONSTRING;
     
-    if (mongoUri && mongoUri.trim() !== '') {
-      console.log('💾 Using MongoDB for task storage');
+    if (cosmosConnectionString && cosmosConnectionString.trim() !== '') {
+      console.log('💾 Using Azure Cosmos DB (MongoDB API) for task storage');
       return new MongoTaskRepository();
     } else {
       console.log('💾 Using in-memory storage for tasks');
