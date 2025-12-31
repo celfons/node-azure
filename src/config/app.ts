@@ -1,6 +1,8 @@
 import express, { Application } from 'express';
 import cors from 'cors';
 import { InMemoryTaskRepository } from '../infrastructure/repositories/InMemoryTaskRepository';
+import { MongoTaskRepository } from '../infrastructure/repositories/MongoTaskRepository';
+import { ITaskRepository } from '../domain/interfaces/ITaskRepository';
 import { TaskService } from '../application/services/TaskService';
 import { TaskController } from '../presentation/controllers/TaskController';
 import { HelloController } from '../presentation/controllers/HelloController';
@@ -40,7 +42,8 @@ export class App {
 
   private initializeRoutes(): void {
     // Dependency Injection - Manual DI Container
-    const taskRepository = new InMemoryTaskRepository();
+    // Use MongoDB repository if MONGODB_URI is configured, otherwise use in-memory
+    const taskRepository: ITaskRepository = this.createTaskRepository();
     const taskService = new TaskService(taskRepository);
     const taskController = new TaskController(taskService);
     const helloController = new HelloController();
@@ -53,6 +56,22 @@ export class App {
     this.app.use('/api/hello', helloRoutes.getRouter());
     this.app.use('/api/tasks', taskRoutes.getRouter());
     this.app.use('/', helloRoutes.getRouter()); // Root path for hello world
+  }
+
+  /**
+   * Create task repository based on environment configuration
+   * Uses MongoDB if MONGODB_URI is set, otherwise falls back to in-memory storage
+   */
+  private createTaskRepository(): ITaskRepository {
+    const mongoUri = process.env.MONGODB_URI;
+    
+    if (mongoUri && mongoUri.trim() !== '') {
+      console.log('💾 Using MongoDB for task storage');
+      return new MongoTaskRepository();
+    } else {
+      console.log('💾 Using in-memory storage for tasks');
+      return new InMemoryTaskRepository();
+    }
   }
 
   private initializeErrorHandling(): void {
