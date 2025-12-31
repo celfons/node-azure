@@ -64,7 +64,7 @@ export class MongoClientSingleton {
         console.error('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
         console.error('The MongoDB driver version is incompatible with your Cosmos DB server.');
         console.error('');
-        console.error('Current MongoDB driver: 6.21.0 (supports wire version 7+, MongoDB 4.0+)');
+        console.error('Current MongoDB driver: 7.0.0 (supports wire version 7+, MongoDB 4.0+)');
         console.error('');
         console.error('💡 SOLUTION:');
         console.error('1. Ensure your Cosmos DB account uses MongoDB API version 4.0 or higher');
