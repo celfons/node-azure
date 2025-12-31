@@ -9,7 +9,7 @@ A clean, production-ready REST API built with Node.js 24 LTS and TypeScript, fol
 - **TypeScript**: Type-safe development
 - **Clean Architecture**: Following SOLID principles and separation of concerns
 - **Azure Ready**: Pre-configured for Azure Web App deployment
-- **In-Memory Storage**: Simple data persistence (can be easily swapped with a real database)
+- **Flexible Storage**: In-memory storage (default) or MongoDB persistence (configurable)
 
 ## 📋 Architecture
 
@@ -38,6 +38,7 @@ src/
 - **Node.js 24 LTS**: Latest long-term support version
 - **TypeScript 5.x**: Type-safe JavaScript
 - **Express.js**: Web framework
+- **MongoDB**: Optional NoSQL database for persistent storage (uses official MongoDB Node.js driver)
 - **SOLID Principles**: 
   - Single Responsibility Principle
   - Open/Closed Principle
@@ -58,6 +59,57 @@ npm install
 # Copy environment variables
 cp .env.example .env
 ```
+
+## 🗄️ Database Configuration
+
+The application supports two storage backends:
+
+### In-Memory Storage (Default)
+By default, the application uses in-memory storage. No additional configuration is needed. Tasks are stored in memory and will be lost when the application restarts.
+
+### MongoDB Storage (Optional)
+To use MongoDB for persistent storage, configure the `MONGODB_URI` environment variable.
+
+#### Local Development with MongoDB
+
+1. **Set up MongoDB locally or use MongoDB Atlas** (free tier available)
+2. **Configure environment variables** in your `.env` file:
+   ```bash
+   MONGODB_URI=mongodb://localhost:27017
+   # Optional: customize database and collection names
+   MONGODB_DATABASE=tasks_db
+   MONGODB_COLLECTION=tasks
+   ```
+
+3. **Start the application**:
+   ```bash
+   npm start
+   ```
+
+The application will automatically detect the MongoDB URI and use MongoDB for storage.
+
+#### MongoDB Atlas Setup
+
+1. Create a free account at [MongoDB Atlas](https://www.mongodb.com/cloud/atlas)
+2. Create a new cluster
+3. Create a database user with read/write permissions
+4. Get your connection string (looks like `mongodb+srv://username:password@cluster.mongodb.net/`)
+5. Add the connection string to your `.env` file:
+   ```bash
+   MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/
+   ```
+
+#### Azure Configuration
+
+Set the MongoDB URI in Azure Portal:
+1. Go to your Azure Web App
+2. Navigate to **Configuration** → **Application Settings**
+3. Add new application setting:
+   - Name: `MONGODB_URI`
+   - Value: Your MongoDB connection string
+4. Save and restart the application
+
+**Important**: Never commit your MongoDB URI or credentials to source control. The `.env.example` file is provided as a template.
 
 ## 🏃‍♂️ Running the Application
 
