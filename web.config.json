@@ -1,0 +1,13 @@
+{
+  "version": 2,
+  "logging": {
+    "applicationLogging": {
+      "level": "information"
+    }
+  },
+  "build": {
+    "env": {
+      "NODE_ENV": "production"
+    }
+  }
+}
