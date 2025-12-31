@@ -38,7 +38,7 @@ src/
 - **Node.js 24 LTS**: Latest long-term support version
 - **TypeScript 5.x**: Type-safe JavaScript
 - **Express.js**: Web framework
-- **MongoDB Driver 6.21.0**: Official MongoDB Node.js driver, compatible with Azure Cosmos DB MongoDB API version 4.0+ (wire protocol version 7+)
+- **MongoDB Driver 7.0.0**: Official MongoDB Node.js driver, compatible with Azure Cosmos DB MongoDB API version 4.0+ (wire protocol version 7+)
 - **SOLID Principles**: 
   - Single Responsibility Principle
   - Open/Closed Principle
@@ -71,7 +71,7 @@ To use Azure Cosmos DB for persistent storage, configure the `AZURE_COSMOS_CONNE
 
 #### Compatibility Requirements
 
-This application uses MongoDB Node.js driver **version 6.21.0**, which is compatible with:
+This application uses MongoDB Node.js driver **version 7.0.0**, which is compatible with:
 - **Azure Cosmos DB for MongoDB API version 4.0** (wire protocol version 7)
 - MongoDB server versions 3.6 and higher
 
