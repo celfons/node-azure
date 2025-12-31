@@ -107,6 +107,22 @@ Configure in Azure Portal → Configuration:
 | NODE_ENV | production | Node environment |
 | PORT | 8080 | Server port |
 | WEBSITE_NODE_DEFAULT_VERSION | 24.x | Node version |
+| AZURE_COSMOS_CONNECTIONSTRING | (your connection string) | Azure Cosmos DB connection string (optional, for persistent storage) |
+
+### Azure Cosmos DB Configuration
+
+To enable persistent task storage with Azure Cosmos DB (MongoDB API):
+
+1. Create an Azure Cosmos DB account with MongoDB API
+2. Navigate to Azure Portal → Your Cosmos DB Account → Connection Strings
+3. Copy the primary or secondary connection string
+4. In Azure Portal → Your Web App → Configuration → Application Settings
+5. Add new application setting:
+   - Name: `AZURE_COSMOS_CONNECTIONSTRING`
+   - Value: Your Cosmos DB connection string (e.g., `mongodb://your-cosmos-account:key@your-cosmos-account.mongo.cosmos.azure.com:10255/?ssl=true&replicaSet=globaldb&retrywrites=false&maxIdleTimeMS=120000&appName=@your-cosmos-account@`)
+6. Save and restart the application
+
+If `AZURE_COSMOS_CONNECTIONSTRING` is not set, the application will use in-memory storage (tasks will be lost on restart).
 
 ## Troubleshooting
 

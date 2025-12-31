@@ -3,7 +3,7 @@ import { Task } from '../../domain/entities/Task';
 
 /**
  * MongoDB Client Singleton
- * Manages MongoDB connection and provides access to database/collections
+ * Manages Azure Cosmos DB (MongoDB API) connection and provides access to database/collections
  * Following Singleton pattern for connection reuse
  */
 export class MongoClientSingleton {
@@ -15,10 +15,10 @@ export class MongoClientSingleton {
   private readonly collectionName: string;
 
   private constructor() {
-    // Validate MONGODB_URI is present
-    this.uri = process.env.MONGODB_URI || '';
+    // Validate AZURE_COSMOS_CONNECTIONSTRING is present
+    this.uri = process.env.AZURE_COSMOS_CONNECTIONSTRING || '';
     if (!this.uri) {
-      throw new Error('MONGODB_URI environment variable is required when using MongoDB');
+      throw new Error('AZURE_COSMOS_CONNECTIONSTRING environment variable is required when using Azure Cosmos DB');
     }
 
     // Optional configuration with defaults
@@ -37,7 +37,7 @@ export class MongoClientSingleton {
   }
 
   /**
-   * Connect to MongoDB (idempotent - reuses existing connection)
+   * Connect to Azure Cosmos DB (idempotent - reuses existing connection)
    */
   public async connect(): Promise<void> {
     if (this.client && this.db) {
@@ -46,16 +46,16 @@ export class MongoClientSingleton {
     }
 
     try {
-      console.log('🔌 Connecting to MongoDB...');
+      console.log('🔌 Connecting to Azure Cosmos DB...');
       this.client = new MongoClient(this.uri);
       await this.client.connect();
       this.db = this.client.db(this.dbName);
-      console.log(`✅ Connected to MongoDB database: ${this.dbName}`);
+      console.log(`✅ Connected to Azure Cosmos DB database: ${this.dbName}`);
       
       // Ensure indexes for efficient lookups
       await this.ensureIndexes();
     } catch (error) {
-      console.error('❌ Failed to connect to MongoDB:', error);
+      console.error('❌ Failed to connect to Azure Cosmos DB:', error);
       throw error;
     }
   }
@@ -68,7 +68,7 @@ export class MongoClientSingleton {
       const collection = this.getTasksCollection();
       // Create unique index on id field for efficient lookups
       await collection.createIndex({ id: 1 }, { unique: true });
-      console.log('✅ MongoDB indexes created');
+      console.log('✅ Azure Cosmos DB indexes created');
     } catch (error) {
       console.warn('⚠️  Could not create indexes:', error);
     }
@@ -79,20 +79,20 @@ export class MongoClientSingleton {
    */
   public getTasksCollection(): Collection<TaskDocument> {
     if (!this.db) {
-      throw new Error('MongoDB not connected. Call connect() first.');
+      throw new Error('Azure Cosmos DB not connected. Call connect() first.');
     }
     return this.db.collection<TaskDocument>(this.collectionName);
   }
 
   /**
-   * Close MongoDB connection
+   * Close Azure Cosmos DB connection
    */
   public async close(): Promise<void> {
     if (this.client) {
       await this.client.close();
       this.client = null;
       this.db = null;
-      console.log('🔌 MongoDB connection closed');
+      console.log('🔌 Azure Cosmos DB connection closed');
     }
   }
 
