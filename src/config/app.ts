@@ -63,7 +63,7 @@ export class App {
    * Uses MongoDB/Cosmos if AZURE_COSMOS_CONNECTIONSTRING is set, otherwise falls back to in-memory storage
    */
   private createTaskRepository(): ITaskRepository {
-    const cosmosConnectionString = process.env.COSMOS_URI;
+    const cosmosConnectionString = process.env.AZURE_COSMOS_CONNECTIONSTRING;
     
     if (cosmosConnectionString && cosmosConnectionString.trim() !== '') {
       console.log('💾 Using Azure Cosmos DB (MongoDB API) for task storage');
