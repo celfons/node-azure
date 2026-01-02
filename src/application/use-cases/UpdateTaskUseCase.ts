@@ -15,9 +15,13 @@ export class UpdateTaskUseCase {
       return null;
     }
 
+    const wasCompleted = existingTask.completed;
     existingTask.update(title, description);
-    if (completed && !existingTask.completed) {
+
+    if (completed && !wasCompleted) {
       existingTask.complete();
+    } else if (!completed && wasCompleted) {
+      existingTask.uncomplete();
     }
 
     return await this.taskRepository.update(id, existingTask);

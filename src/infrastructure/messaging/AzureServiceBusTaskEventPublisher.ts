@@ -1,4 +1,4 @@
-import { ServiceBusClient, ServiceBusMessage } from '@azure/service-bus';
+import { ServiceBusClient, ServiceBusMessage, ServiceBusSender } from '@azure/service-bus';
 import { Task } from '../../domain/entities/Task';
 import { ITaskEventPublisher } from '../../domain/interfaces/ITaskEventPublisher';
 
@@ -6,12 +6,15 @@ import { ITaskEventPublisher } from '../../domain/interfaces/ITaskEventPublisher
  * Azure Service Bus implementation for publishing task events to a queue
  */
 export class AzureServiceBusTaskEventPublisher implements ITaskEventPublisher {
+  private static readonly TIMESTAMP_FIELD = 'timestamp';
   private client: ServiceBusClient;
+  private sender: ServiceBusSender;
   private queueName: string;
 
   constructor(connectionString: string, queueName: string) {
-    this.client = new ServiceBusClient(connectionString);
     this.queueName = queueName;
+    this.client = new ServiceBusClient(connectionString);
+    this.sender = this.client.createSender(queueName);
   }
 
   async publishTaskCreated(task: Task): Promise<void> {
@@ -26,24 +29,32 @@ export class AzureServiceBusTaskEventPublisher implements ITaskEventPublisher {
     await this.sendMessage('task.deleted', { id: taskId });
   }
 
-  private async sendMessage(eventType: string, payload: Task | { id: string }): Promise<void> {
-    const sender = this.client.createSender(this.queueName);
+  private async sendMessage<T extends { id: string }>(eventType: string, payload: T): Promise<void> {
     const message: ServiceBusMessage = {
       body: {
         eventType,
         payload,
-        timestamp: new Date().toISOString()
+        [AzureServiceBusTaskEventPublisher.TIMESTAMP_FIELD]: new Date().toISOString()
       },
       contentType: 'application/json',
       subject: eventType
     };
 
     try {
-      await sender.sendMessages(message);
+      await this.sender.sendMessages(message);
     } catch (error) {
-      console.error('Failed to publish task event to Azure Service Bus', error);
-    } finally {
-      await sender.close();
+      console.error('[ServiceBus] Failed to publish task event', {
+        eventType,
+        queueName: this.queueName,
+        payloadId: payload.id,
+        error: error instanceof Error ? error.message : String(error)
+      });
+      throw error;
     }
+  }
+
+  async close(): Promise<void> {
+    await this.sender.close();
+    await this.client.close();
   }
 }

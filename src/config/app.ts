@@ -48,6 +48,7 @@ export class App {
     // Use Azure Cosmos DB repository if AZURE_COSMOS_CONNECTIONSTRING is configured, otherwise use in-memory
     const taskRepository: ITaskRepository = this.createTaskRepository();
     const taskEventPublisher: ITaskEventPublisher = this.createTaskEventPublisher();
+    this.registerGracefulShutdown(taskEventPublisher);
     const taskService = new TaskService(taskRepository, taskEventPublisher);
     const taskController = new TaskController(taskService);
     const helloController = new HelloController();
@@ -69,7 +70,7 @@ export class App {
   private createTaskRepository(): ITaskRepository {
     const cosmosConnectionString = process.env.AZURE_COSMOS_CONNECTIONSTRING;
     
-    if (cosmosConnectionString && cosmosConnectionString.trim() !== '') {
+    if (this.hasValue(cosmosConnectionString)) {
       console.log('💾 Using Azure Cosmos DB (MongoDB API) for task storage');
       return new MongoTaskRepository();
     } else {
@@ -86,13 +87,35 @@ export class App {
     const connectionString = process.env.AZURE_SERVICEBUS_CONNECTIONSTRING;
     const queueName = process.env.AZURE_SERVICEBUS_QUEUE_NAME;
 
-    if (connectionString && connectionString.trim() !== '' && queueName && queueName.trim() !== '') {
+    if (this.hasValue(connectionString) && this.hasValue(queueName)) {
       console.log('📨 Using Azure Service Bus Queue for task events');
       return new AzureServiceBusTaskEventPublisher(connectionString, queueName);
     }
 
     console.log('📨 Task event publishing disabled (Azure Service Bus not configured)');
     return new NoopTaskEventPublisher();
+  }
+
+  private hasValue(value: string | undefined): value is string {
+    return Boolean(value && value.trim() !== '');
+  }
+
+  private registerGracefulShutdown(taskEventPublisher: ITaskEventPublisher): void {
+    let closed = false;
+    const close = async (): Promise<void> => {
+      if (closed) {
+        return;
+      }
+      closed = true;
+      try {
+        await taskEventPublisher.close();
+      } catch (error) {
+        console.error('[App] Failed to close task event publisher', error);
+      }
+    };
+
+    process.once('SIGINT', close);
+    process.once('SIGTERM', close);
   }
 
   private initializeErrorHandling(): void {

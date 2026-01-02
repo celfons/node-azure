@@ -63,7 +63,9 @@ export class TaskService {
     try {
       await publishFn();
     } catch (error) {
-      console.error('Task event publication failed', error);
+      console.error('[TaskService] Task event publication failed', {
+        error: error instanceof Error ? error.message : String(error)
+      });
     }
   }
 }

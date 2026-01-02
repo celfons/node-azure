@@ -17,4 +17,6 @@ export class NoopTaskEventPublisher implements ITaskEventPublisher {
   async publishTaskDeleted(_taskId: string): Promise<void> {
     return;
   }
+
+  async close(): Promise<void> {}
 }

@@ -19,4 +19,9 @@ export interface ITaskEventPublisher {
    * Publish event when a task is deleted
    */
   publishTaskDeleted(taskId: string): Promise<void>;
+
+  /**
+   * Optional cleanup hook to release resources
+   */
+  close(): Promise<void>;
 }
