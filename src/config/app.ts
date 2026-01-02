@@ -3,6 +3,9 @@ import cors from 'cors';
 import { InMemoryTaskRepository } from '../infrastructure/repositories/InMemoryTaskRepository';
 import { MongoTaskRepository } from '../infrastructure/repositories/MongoTaskRepository';
 import { ITaskRepository } from '../domain/interfaces/ITaskRepository';
+import { ITaskEventPublisher } from '../domain/interfaces/ITaskEventPublisher';
+import { AzureServiceBusTaskEventPublisher } from '../infrastructure/messaging/AzureServiceBusTaskEventPublisher';
+import { NoopTaskEventPublisher } from '../infrastructure/messaging/NoopTaskEventPublisher';
 import { TaskService } from '../application/services/TaskService';
 import { TaskController } from '../presentation/controllers/TaskController';
 import { HelloController } from '../presentation/controllers/HelloController';
@@ -44,7 +47,8 @@ export class App {
     // Dependency Injection - Manual DI Container
     // Use Azure Cosmos DB repository if AZURE_COSMOS_CONNECTIONSTRING is configured, otherwise use in-memory
     const taskRepository: ITaskRepository = this.createTaskRepository();
-    const taskService = new TaskService(taskRepository);
+    const taskEventPublisher: ITaskEventPublisher = this.createTaskEventPublisher();
+    const taskService = new TaskService(taskRepository, taskEventPublisher);
     const taskController = new TaskController(taskService);
     const helloController = new HelloController();
 
@@ -72,6 +76,23 @@ export class App {
       console.log('💾 Using in-memory storage for tasks');
       return new InMemoryTaskRepository();
     }
+  }
+
+  /**
+   * Create task event publisher based on Azure Service Bus configuration
+   * Uses queue when AZURE_SERVICEBUS_CONNECTIONSTRING and AZURE_SERVICEBUS_QUEUE_NAME are set
+   */
+  private createTaskEventPublisher(): ITaskEventPublisher {
+    const connectionString = process.env.AZURE_SERVICEBUS_CONNECTIONSTRING;
+    const queueName = process.env.AZURE_SERVICEBUS_QUEUE_NAME;
+
+    if (connectionString && connectionString.trim() !== '' && queueName && queueName.trim() !== '') {
+      console.log('📨 Using Azure Service Bus Queue for task events');
+      return new AzureServiceBusTaskEventPublisher(connectionString, queueName);
+    }
+
+    console.log('📨 Task event publishing disabled (Azure Service Bus not configured)');
+    return new NoopTaskEventPublisher();
   }
 
   private initializeErrorHandling(): void {
