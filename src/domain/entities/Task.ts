@@ -36,6 +36,14 @@ export class Task {
   }
 
   /**
+   * Mark task as not completed
+   */
+  uncomplete(): void {
+    this.completed = false;
+    this.updatedAt = new Date();
+  }
+
+  /**
    * Update task details
    */
   update(title: string, description: string): void {

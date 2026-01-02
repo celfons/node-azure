@@ -9,6 +9,7 @@ A clean, production-ready REST API built with Node.js 24 LTS and TypeScript, fol
 - **TypeScript**: Type-safe development
 - **Clean Architecture**: Following SOLID principles and separation of concerns
 - **Azure Ready**: Pre-configured for Azure Web App deployment
+- **Azure Service Bus (Queue)**: Optional publishing of task lifecycle events to a queue
 - **Flexible Storage**: In-memory storage (default) or Azure Cosmos DB persistence (configurable)
 
 ## 📋 Architecture
@@ -96,6 +97,14 @@ To enable persistent storage in Azure:
 The application will automatically detect the connection string and use Azure Cosmos DB for storage.
 
 **Important**: Environment variables should be configured in Azure Web App Configuration, not in `.env` files. The `.env.example` file is provided only as a reference for local development.
+
+### Azure Service Bus Queue (Optional)
+Publish task lifecycle events to an Azure Service Bus queue by configuring:
+
+- `AZURE_SERVICEBUS_CONNECTIONSTRING`
+- `AZURE_SERVICEBUS_QUEUE_NAME`
+
+If these settings are not provided, event publishing is disabled and the app continues to work normally.
 
 ## 🏃‍♂️ Running the Application
 
