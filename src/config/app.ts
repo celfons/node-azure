@@ -4,8 +4,11 @@ import { InMemoryTaskRepository } from '../infrastructure/repositories/InMemoryT
 import { MongoTaskRepository } from '../infrastructure/repositories/MongoTaskRepository';
 import { ITaskRepository } from '../domain/interfaces/ITaskRepository';
 import { ITaskEventPublisher } from '../domain/interfaces/ITaskEventPublisher';
+import { IQueuePublisher } from '../domain/interfaces/IQueuePublisher';
 import { AzureServiceBusTaskEventPublisher } from '../infrastructure/messaging/AzureServiceBusTaskEventPublisher';
 import { NoopTaskEventPublisher } from '../infrastructure/messaging/NoopTaskEventPublisher';
+import { AzureServiceBusQueuePublisher } from '../infrastructure/messaging/AzureServiceBusQueuePublisher';
+import { NoopQueuePublisher } from '../infrastructure/messaging/NoopQueuePublisher';
 import { TaskService } from '../application/services/TaskService';
 import { TaskController } from '../presentation/controllers/TaskController';
 import { HelloController } from '../presentation/controllers/HelloController';
@@ -13,6 +16,7 @@ import { TaskRoutes } from '../presentation/routes/taskRoutes';
 import { HelloRoutes } from '../presentation/routes/helloRoutes';
 import { errorHandler } from '../presentation/middlewares/errorHandler';
 import { requestLogger } from '../presentation/middlewares/requestLogger';
+import { createResponseQueueMiddleware } from '../presentation/middlewares/responseQueueMiddleware';
 
 /**
  * App Configuration
@@ -22,10 +26,12 @@ import { requestLogger } from '../presentation/middlewares/requestLogger';
 export class App {
   private app: Application;
   private port: number;
+  private queuePublisher: IQueuePublisher;
 
   constructor(port: number) {
     this.app = express();
     this.port = port;
+    this.queuePublisher = this.createQueuePublisher();
     this.initializeMiddlewares();
     this.initializeRoutes();
     this.initializeErrorHandling();
@@ -41,6 +47,9 @@ export class App {
 
     // Request logger
     this.app.use(requestLogger);
+
+    // Publish every HTTP response to Service Bus (if configured)
+    this.app.use(createResponseQueueMiddleware(this.queuePublisher));
   }
 
   private initializeRoutes(): void {
@@ -48,7 +57,7 @@ export class App {
     // Use Azure Cosmos DB repository if AZURE_COSMOS_CONNECTIONSTRING is configured, otherwise use in-memory
     const taskRepository: ITaskRepository = this.createTaskRepository();
     const taskEventPublisher: ITaskEventPublisher = this.createTaskEventPublisher();
-    this.registerGracefulShutdown(taskEventPublisher);
+    this.registerGracefulShutdown(taskEventPublisher, this.queuePublisher);
     const taskService = new TaskService(taskRepository, taskEventPublisher);
     const taskController = new TaskController(taskService);
     const helloController = new HelloController();
@@ -96,22 +105,41 @@ export class App {
     return new NoopTaskEventPublisher();
   }
 
+  /**
+   * Create generic queue publisher for HTTP responses
+   */
+  private createQueuePublisher(): IQueuePublisher {
+    const connectionString = process.env.AZURE_SERVICEBUS_CONNECTIONSTRING;
+    const queueName = process.env.AZURE_SERVICEBUS_QUEUE_NAME;
+
+    if (this.hasValue(connectionString) && this.hasValue(queueName)) {
+      console.log('📨 Publishing HTTP responses to Azure Service Bus Queue');
+      return new AzureServiceBusQueuePublisher(connectionString, queueName);
+    }
+
+    return new NoopQueuePublisher();
+  }
+
   private hasValue(value: string | undefined): value is string {
     return Boolean(value && value.trim() !== '');
   }
 
-  private registerGracefulShutdown(taskEventPublisher: ITaskEventPublisher): void {
+  private registerGracefulShutdown(...publishers: Array<{ close: () => Promise<void> }>): void {
     let closed = false;
     const close = async (): Promise<void> => {
       if (closed) {
         return;
       }
       closed = true;
-      try {
-        await taskEventPublisher.close();
-      } catch (error) {
-        console.error('[App] Failed to close task event publisher', error);
-      }
+      await Promise.all(
+        publishers.map(async (publisher) => {
+          try {
+            await publisher.close();
+          } catch (error) {
+            console.error('[App] Failed to close publisher', error);
+          }
+        })
+      );
     };
 
     process.once('SIGINT', close);
