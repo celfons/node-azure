@@ -1,5 +1,6 @@
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from '@azure/functions';
 import { Infrastructure } from '../infrastructure';
+import { createMockRequest, createMockResponse } from './utils';
 
 /**
  * Azure Function: Health Check
@@ -10,26 +11,14 @@ export async function healthCheck(_request: HttpRequest, context: InvocationCont
 
   try {
     const controller = Infrastructure.getHelloController();
-    
-    let responseData: any = null;
-    let statusCode = 200;
+    const { res, getStatus, getData } = createMockResponse();
+    const mockReq = createMockRequest();
 
-    const mockRes = {
-      status: (code: number) => {
-        statusCode = code;
-        return mockRes;
-      },
-      json: (data: any) => {
-        responseData = data;
-      }
-    };
-
-    const mockReq = {} as any;
-    controller.health(mockReq, mockRes as any);
+    controller.health(mockReq, res);
 
     return {
-      status: statusCode,
-      jsonBody: responseData,
+      status: getStatus(),
+      jsonBody: getData(),
       headers: {
         'Content-Type': 'application/json'
       }

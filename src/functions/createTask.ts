@@ -1,5 +1,6 @@
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from '@azure/functions';
 import { Infrastructure } from '../infrastructure';
+import { createMockRequest, createMockResponse } from './utils';
 
 /**
  * Azure Function: Create Task
@@ -10,30 +11,16 @@ export async function createTask(request: HttpRequest, context: InvocationContex
 
   try {
     const controller = Infrastructure.getTaskController();
-    const body = await request.json() as any;
+    const body = await request.json();
     
-    let responseData: any = null;
-    let statusCode = 200;
-
-    const mockRes = {
-      status: (code: number) => {
-        statusCode = code;
-        return mockRes;
-      },
-      json: (data: any) => {
-        responseData = data;
-      }
-    };
-
-    const mockReq = {
-      body: body
-    } as any;
+    const { res, getStatus, getData } = createMockResponse();
+    const mockReq = createMockRequest(undefined, body);
     
-    await controller.createTask(mockReq, mockRes as any);
+    await controller.createTask(mockReq, res);
 
     return {
-      status: statusCode,
-      jsonBody: responseData,
+      status: getStatus(),
+      jsonBody: getData(),
       headers: {
         'Content-Type': 'application/json'
       }

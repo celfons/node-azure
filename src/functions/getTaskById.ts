@@ -1,5 +1,6 @@
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from '@azure/functions';
 import { Infrastructure } from '../infrastructure';
+import { createMockRequest, createMockResponse } from './utils';
 
 /**
  * Azure Function: Get Task By ID
@@ -21,29 +22,15 @@ export async function getTaskById(request: HttpRequest, context: InvocationConte
         }
       };
     }
-    
-    let responseData: any = null;
-    let statusCode = 200;
 
-    const mockRes = {
-      status: (code: number) => {
-        statusCode = code;
-        return mockRes;
-      },
-      json: (data: any) => {
-        responseData = data;
-      }
-    };
-
-    const mockReq = {
-      params: { id }
-    } as any;
+    const { res, getStatus, getData } = createMockResponse();
+    const mockReq = createMockRequest({ id });
     
-    await controller.getTaskById(mockReq, mockRes as any);
+    await controller.getTaskById(mockReq, res);
 
     return {
-      status: statusCode,
-      jsonBody: responseData,
+      status: getStatus(),
+      jsonBody: getData(),
       headers: {
         'Content-Type': 'application/json'
       }

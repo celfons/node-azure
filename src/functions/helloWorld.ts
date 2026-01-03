@@ -1,5 +1,6 @@
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from '@azure/functions';
 import { Infrastructure } from '../infrastructure';
+import { createMockRequest, createMockResponse } from './utils';
 
 /**
  * Azure Function: Hello World
@@ -10,27 +11,14 @@ export async function helloWorld(_request: HttpRequest, context: InvocationConte
 
   try {
     const controller = Infrastructure.getHelloController();
-    
-    // Create a mock Express-like response object
-    let responseData: any = null;
-    let statusCode = 200;
+    const { res, getStatus, getData } = createMockResponse();
+    const mockReq = createMockRequest();
 
-    const mockRes = {
-      status: (code: number) => {
-        statusCode = code;
-        return mockRes;
-      },
-      json: (data: any) => {
-        responseData = data;
-      }
-    };
-
-    const mockReq = {} as any;
-    controller.hello(mockReq, mockRes as any);
+    controller.hello(mockReq, res);
 
     return {
-      status: statusCode,
-      jsonBody: responseData,
+      status: getStatus(),
+      jsonBody: getData(),
       headers: {
         'Content-Type': 'application/json'
       }
