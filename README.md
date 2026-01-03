@@ -1,6 +1,6 @@
-# Node.js CRUD Application with TypeScript for Azure Web App
+# Node.js CRUD Application with TypeScript for Azure
 
-A clean, production-ready REST API built with Node.js 24 LTS and TypeScript, following SOLID principles and Clean Code practices for deployment to Azure Web Apps.
+A clean, production-ready REST API built with Node.js 24 LTS and TypeScript, following SOLID principles and Clean Code practices. Supports deployment to both **Azure Functions (Serverless)** and **Azure Web Apps**.
 
 ## 🚀 Features
 
@@ -8,9 +8,20 @@ A clean, production-ready REST API built with Node.js 24 LTS and TypeScript, fol
 - **Full CRUD API**: Complete task management system
 - **TypeScript**: Type-safe development
 - **Clean Architecture**: Following SOLID principles and separation of concerns
-- **Azure Ready**: Pre-configured for Azure Web App deployment
+- **Azure Functions**: Serverless deployment option with pay-per-execution pricing
+- **Azure Web App**: Traditional web server deployment option
 - **Azure Service Bus (Queue)**: Optional publishing of task lifecycle events to a queue
 - **Flexible Storage**: In-memory storage (default) or Azure Cosmos DB persistence (configurable)
+
+## 📦 Deployment Options
+
+This application supports two deployment models:
+
+1. **Azure Functions (Serverless)** - Recommended for event-driven workloads
+   - See [AZURE_FUNCTIONS_DEPLOYMENT.md](./AZURE_FUNCTIONS_DEPLOYMENT.md) for detailed instructions
+   
+2. **Azure Web App (Traditional)** - Best for consistent traffic patterns
+   - See [AZURE_DEPLOYMENT.md](./AZURE_DEPLOYMENT.md) for detailed instructions
 
 ## 📋 Architecture
 
@@ -18,6 +29,7 @@ This application follows Clean Architecture principles with clear separation of 
 
 ```
 src/
+├── functions/           # Azure Function handlers (serverless)
 ├── domain/              # Business logic and entities
 │   ├── entities/        # Domain models
 │   └── interfaces/      # Contracts and abstractions
@@ -31,14 +43,16 @@ src/
 │   ├── routes/          # Route definitions
 │   └── middlewares/     # Express middlewares
 ├── config/              # Application configuration
-└── index.ts            # Entry point
+├── infrastructure.ts    # Shared DI for Azure Functions
+└── index.ts            # Entry point (Web App mode)
 ```
 
 ## 🛠️ Technologies
 
 - **Node.js 24 LTS**: Latest long-term support version
 - **TypeScript 5.x**: Type-safe JavaScript
-- **Express.js**: Web framework
+- **Azure Functions**: Serverless computing platform
+- **Express.js**: Web framework (for Web App mode)
 - **MongoDB Driver 7.0.0**: Official MongoDB Node.js driver, compatible with Azure Cosmos DB MongoDB API version 4.0+ (wire protocol version 7+)
 - **SOLID Principles**: 
   - Single Responsibility Principle
@@ -58,7 +72,11 @@ cd node-azure
 npm install
 ```
 
-**Note**: This application is designed to run on Azure Web App and uses Azure Web App Configuration for environment variables. A `.env.example` file is provided for reference, but the application does not require a `.env` file for local development or production deployment.
+**Note**: This application supports both Azure Functions and Azure Web App deployment models. For local development:
+- **Azure Functions mode**: See [AZURE_FUNCTIONS_DEPLOYMENT.md](./AZURE_FUNCTIONS_DEPLOYMENT.md)
+- **Web App mode**: Use the instructions below
+
+Environment variables can be configured via `.env` file for local development, `local.settings.json` for Azure Functions local development, or Azure Configuration for production deployments.
 
 ## 🗄️ Database Configuration
 
@@ -108,18 +126,35 @@ If these settings are not provided, event publishing is disabled and the app con
 
 ## 🏃‍♂️ Running the Application
 
-### Development Mode
+### Azure Functions Mode (Recommended)
+
 ```bash
-npm run dev
+# Build the application
+npm run build
+
+# Start Azure Functions runtime
+npm run start:func
+# Or: func start
 ```
 
-### Production Build
+Access at `http://localhost:7071/`
+
+**For detailed instructions**, see [AZURE_FUNCTIONS_DEPLOYMENT.md](./AZURE_FUNCTIONS_DEPLOYMENT.md)
+
+### Web App Mode (Traditional)
+
 ```bash
+# Development mode with hot reload
+npm run dev
+
+# Production build and start
 npm run build
 npm start
 ```
 
-The server will start on port 8080 (or the PORT specified in .env).
+Access at `http://localhost:8080/`
+
+**For detailed instructions**, see [AZURE_DEPLOYMENT.md](./AZURE_DEPLOYMENT.md)
 
 ## 🔗 API Endpoints
 
@@ -200,43 +235,42 @@ curl -X DELETE http://localhost:8080/api/tasks/task_1234567890_abc123
 
 ## ☁️ Azure Deployment
 
-This application is ready for deployment to Azure Web App via Deployment Center.
+This application supports two deployment options:
 
-### Prerequisites
-- Azure subscription
-- Azure Web App created
+### Option 1: Azure Functions (Serverless) ⚡
 
-### Deployment Steps
+**Recommended for**: Event-driven workloads, variable traffic, pay-per-execution pricing
 
-1. **Via Azure Portal Deployment Center**:
-   - Go to your Azure Web App
-   - Navigate to Deployment Center
-   - Connect your GitHub repository
-   - Azure will automatically detect Node.js and build the application
+See comprehensive guide: [AZURE_FUNCTIONS_DEPLOYMENT.md](./AZURE_FUNCTIONS_DEPLOYMENT.md)
 
-2. **Environment Variables**:
-   Set in Azure Portal → Configuration → Application Settings:
-   ```
-   NODE_ENV=production
-   PORT=8080
-   ```
+**Quick Start**:
+```bash
+# Build and deploy
+npm run build
+func azure functionapp publish <your-function-app-name>
+```
 
-3. **Build Command** (automatically detected):
-   ```bash
-   npm install
-   npm run build
-   ```
+### Option 2: Azure Web App (Traditional) 🌐
 
-4. **Start Command**:
-   ```bash
-   npm start
-   ```
+**Recommended for**: Consistent traffic patterns, traditional hosting
 
-### Configuration Files
+See comprehensive guide: [AZURE_DEPLOYMENT.md](./AZURE_DEPLOYMENT.md)
 
-- `web.config`: IIS configuration for Azure App Service
-- `web.config.json`: Additional Azure configuration
-- `package.json`: Node.js engine version specified (>=24.0.0)
+**Quick Start**:
+1. Create Azure Web App in Azure Portal
+2. Connect GitHub repository via Deployment Center
+3. Azure automatically builds and deploys
+
+### Common Configuration
+
+Both deployment options require the same environment variables:
+
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `AZURE_COSMOS_CONNECTIONSTRING` | No | Azure Cosmos DB connection string (uses in-memory if not set) |
+| `AZURE_SERVICEBUS_CONNECTIONSTRING` | No | Azure Service Bus connection string for event publishing |
+| `AZURE_SERVICEBUS_QUEUE_NAME` | No | Service Bus queue name for events |
+| `NODE_ENV` | No | Environment (production/development) |
 
 ## 🏗️ SOLID Principles Applied
 
