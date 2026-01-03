@@ -1,15 +1,19 @@
 {
   "name": "azure",
   "version": "1.0.0",
-  "description": "Node.js CRUD application with TypeScript for Azure Web App",
-  "main": "dist/index.js",
+  "description": "Node.js CRUD application with TypeScript for Azure Functions",
+  "main": "dist/src/functions/*.js",
   "engines": {
     "node": ">=20.0.0"
   },
   "scripts": {
     "dev": "nodemon --watch src --ext ts --exec ts-node src/index.ts",
     "build": "tsc",
-    "start": "node dist/index.js"
+    "build:production": "npm run clean && npm run build",
+    "clean": "rm -rf dist",
+    "start": "node dist/index.js",
+    "start:func": "func start",
+    "watch": "tsc --watch"
   },
   "keywords": [
     "node",
@@ -21,6 +25,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@azure/functions": "^4.10.0",
     "@azure/service-bus": "^7.9.5",
     "cors": "^2.8.5",
     "express": "^5.2.1",
