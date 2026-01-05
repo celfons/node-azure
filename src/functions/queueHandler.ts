@@ -105,7 +105,7 @@ export async function healthCheck(_request: HttpRequest, context: InvocationCont
 app.http('sendTaskToQueue', {
   methods: ['POST'],
   authLevel: 'anonymous',
-  route: 'tasks',
+  route: 'api/tasks',
   handler: sendTaskToQueue
 });
 
@@ -113,6 +113,6 @@ app.http('sendTaskToQueue', {
 app.http('healthCheck', {
   methods: ['GET'],
   authLevel: 'anonymous',
-  route: 'health',
+  route: 'api/health',
   handler: healthCheck
 });

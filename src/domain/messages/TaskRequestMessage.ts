@@ -9,9 +9,9 @@ export interface TaskRequestMessage {
   title: string;
 
   /**
-   * Task description
+   * Task description (optional)
    */
-  description: string;
+  description?: string;
 
   /**
    * Timestamp when the request was received
