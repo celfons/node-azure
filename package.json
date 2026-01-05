@@ -1,17 +1,15 @@
 {
   "name": "azure",
   "version": "1.0.0",
-  "description": "Node.js CRUD application with TypeScript for Azure Functions",
+  "description": "Azure Function for sending task requests to Service Bus Queue",
   "main": "dist/src/functions/*.js",
   "engines": {
     "node": ">=20.0.0"
   },
   "scripts": {
-    "dev": "nodemon --watch src --ext ts --exec ts-node src/index.ts",
     "build": "tsc",
     "build:production": "npm run clean && npm run build",
     "clean": "rm -rf dist",
-    "start": "node dist/index.js",
     "start:func": "func start",
     "watch": "tsc --watch"
   },
@@ -19,24 +17,17 @@
     "node",
     "typescript",
     "azure",
-    "crud",
-    "api"
+    "queue",
+    "serverless"
   ],
   "author": "",
   "license": "ISC",
   "dependencies": {
     "@azure/functions": "^4.10.0",
-    "@azure/service-bus": "^7.9.5",
-    "cors": "^2.8.5",
-    "express": "^5.2.1",
-    "mongodb": "^7.0.0"
+    "@azure/service-bus": "^7.9.5"
   },
   "devDependencies": {
-    "@types/cors": "^2.8.19",
-    "@types/express": "^5.0.6",
     "@types/node": "^25.0.3",
-    "nodemon": "^3.1.11",
-    "ts-node": "^10.9.2",
     "typescript": "^5.9.3"
   }
 }
